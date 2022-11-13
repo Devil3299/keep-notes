@@ -39,11 +39,12 @@ const updateNote = (id, title, content, cb) => {
 };
 
 const getAllNotesFromDB = async () => {
+  debugger
   const result = [];
   const snapshot = await get(reference);
   const data = await snapshot.val();
   if(!data) {
-    return result;
+    return null;
   }
   Object.keys(data).forEach((key) => {
     const obj = {
