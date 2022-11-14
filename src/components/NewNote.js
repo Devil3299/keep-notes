@@ -7,13 +7,13 @@ export default function NewNote({ handleSetNotes }) {
     title: "",
     content: "",
   });
-  const [err, setErr] = useState(false);
+  const [err, setErr] = useState({ text: "", flag: false });
   const [isContentFocused, setIsContentFocused] = useState(false);
 
   const wrapperRef = useRef(null);
   useOutsideClick(wrapperRef, () => {
     setIsContentFocused(false);
-    setErr(false);
+    setErr({ text: "", flag: false });
   });
 
   const resetForm = () => {
@@ -33,18 +33,24 @@ export default function NewNote({ handleSetNotes }) {
             value={note.title}
             onBlur={(e) => {
               if (e.target.value.length === 0) {
-                setErr(true);
+                setErr({ text: "Please enter title", flag: true });
               }
             }}
             onChange={(e) => {
-              setErr(e.target.value.length === 0);
+              setErr(
+                e.target.value.length === 0
+                  ? { text: "Please enter title", flag: true }
+                  : e.target.value.length > 40
+                  ? { text: "Max 40 characters are allowed", flag: true }
+                  : { text: "", flag: false }
+              );
               setNote({ ...note, title: e.target.value });
             }}
             onFocus={() => setIsContentFocused(true)}
             className="outline-0 text-xl font-bold font-mono"
           />
-          {err && (
-            <span className="text-red-500 text-sm">Please enter title</span>
+          {err.flag && (
+            <span className="text-red-500 text-sm">{err.text}</span>
           )}
         </>
       )}
@@ -60,9 +66,13 @@ export default function NewNote({ handleSetNotes }) {
         className="absolute -bottom-4 right-8 h-8 w-8 rounded-full bg-yellow-500 hover:bg-yellow-400 font-bold shadow-xl text-white"
         onClick={() => {
           if (note.title.length > 0) {
-            createNote(note.title, note.content, resetForm);
+            if (note.title.length > 40) {
+              setErr({ text: "Max 40 characters are allowed", flag: true });
+            } else {
+              createNote(note.title, note.content, resetForm);
+            }
           } else {
-            setErr(true);
+            setErr({ text: "Please enter title", flag: true });
           }
         }}
       >
